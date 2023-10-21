@@ -11,6 +11,7 @@ type RandomStruct struct {
 	String         string
 	Integer        int
 	Float          float64
+	Bool           bool
 	Slice          []string
 	Map            map[string]string
 	IntMap         map[int]string // handle this case "IntMap":{"<int Value>":"Two"}
