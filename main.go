@@ -8,21 +8,21 @@ import (
 )
 
 type RandomStruct struct {
-	String         string
-	Integer        int
-	Float          float64
-	Bool           bool
-	Slice          []string
-	Map            map[string]string
-	IntMap         map[int]string // handle this case "IntMap":{"<int Value>":"Two"}
-	OtherStruct    *OtherStruct
-	MapStrToStruct map[string]*OtherStruct
+	String         string                  `json:"string"`
+	Integer        int                     `json:"integer"`
+	Float          float64                 `json:"float"`
+	Bool           bool                    `json:"bool"`
+	Slice          []string                `json:"slice"`
+	Map            map[string]string       `json:"map"`
+	IntMap         map[int]string          `json:"int_map"` // handle this case "IntMap":{"<int Value>":"Two"}
+	OtherStruct    *OtherStruct            `json:"other_struct"`
+	MapStrToStruct map[string]*OtherStruct `json:"map_str_to_struct"`
 }
 
 type OtherStruct struct {
-	OtherStructString string
-	OtherInt          int
-	OtherMap          map[string]string
+	OtherStructString string            `json:"other_struct_string"`
+	OtherInt          int               `json:"other_int"`
+	OtherMap          map[string]string `json:"other_map"`
 }
 
 func main() {

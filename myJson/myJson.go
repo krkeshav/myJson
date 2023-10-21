@@ -56,7 +56,15 @@ func simpleEncode(value reflect.Value) string {
 			if index > 0 {
 				str += ","
 			}
-			str += fmt.Sprintf(`"%s":%s`, value.Type().Field(index).Name, simpleEncode(value.Field(index)))
+			valueType := value.Type().Field(index)
+			jsonTagName := valueType.Tag.Get("json")
+			if jsonTagName == "" {
+				jsonTagName = valueType.Name
+			}
+			// tag := valueType.Tag.Get("encrypt")
+			// isValidTag := tag == "true"
+			underlyingFieldValueStr := simpleEncode(value.Field(index))
+			str += fmt.Sprintf(`"%s":%s`, jsonTagName, underlyingFieldValueStr)
 		}
 		str += "}"
 		return str
