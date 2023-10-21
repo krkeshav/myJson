@@ -10,13 +10,14 @@ import (
 type RandomStruct struct {
 	String         string                  `json:"string" encrypt:"true"`
 	Integer        int                     `json:"integer"`
-	Float          float64                 `json:"float"`
+	Float          float64                 `json:"float" encrypt:"true"`
 	Bool           bool                    `json:"bool"`
 	Slice          []string                `json:"slice"`
 	Map            map[string]string       `json:"map"`
 	IntMap         map[int]string          `json:"int_map"` // handle this case "IntMap":{"<int Value>":"Two"}
 	OtherStruct    *OtherStruct            `json:"other_struct"`
 	MapStrToStruct map[string]*OtherStruct `json:"map_str_to_struct"`
+	SliceOfStruct  []OtherStruct           `json:"slice_struct"`
 }
 
 type OtherStruct struct {
@@ -46,6 +47,22 @@ func main() {
 		},
 		MapStrToStruct: map[string]*OtherStruct{
 			"mapStructkey1": {
+				OtherStructString: "other string",
+				OtherInt:          3,
+				OtherMap: map[string]string{
+					"otherKey": "other Value",
+				},
+			},
+		},
+		SliceOfStruct: []OtherStruct{
+			{
+				OtherStructString: "other string",
+				OtherInt:          3,
+				OtherMap: map[string]string{
+					"otherKey": "other Value",
+				},
+			},
+			{
 				OtherStructString: "other string",
 				OtherInt:          3,
 				OtherMap: map[string]string{

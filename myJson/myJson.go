@@ -47,8 +47,8 @@ func simpleEncode(value reflect.Value) string {
 			if index > 0 {
 				str += ","
 			}
-
-			str += fmt.Sprintf(`"%s":%s`, key.String(), simpleEncode(value.MapIndex(key)))
+			keyValue := getMapKey(key)
+			str += fmt.Sprintf(`"%s":%s`, keyValue, simpleEncode(value.MapIndex(key)))
 		}
 		str += "}"
 		return str
@@ -78,4 +78,17 @@ func simpleEncode(value reflect.Value) string {
 	default:
 		return ""
 	}
+}
+
+func getMapKey(keyValue reflect.Value) string {
+	keyValueStr := keyValue.String()
+	switch keyValue.Kind() {
+	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+		keyValueStr = fmt.Sprintf("%d", keyValue.Int())
+	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+		keyValueStr = fmt.Sprintf("%d", keyValue.Uint())
+	case reflect.Float32, reflect.Float64:
+		keyValueStr = fmt.Sprintf("%f", keyValue.Float())
+	}
+	return keyValueStr
 }
