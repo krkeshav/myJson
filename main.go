@@ -8,7 +8,7 @@ import (
 )
 
 type RandomStruct struct {
-	String         string                  `json:"string"`
+	String         string                  `json:"string" encrypt:"true"`
 	Integer        int                     `json:"integer"`
 	Float          float64                 `json:"float"`
 	Bool           bool                    `json:"bool"`
@@ -20,9 +20,9 @@ type RandomStruct struct {
 }
 
 type OtherStruct struct {
-	OtherStructString string            `json:"other_struct_string"`
+	OtherStructString string            `json:"other_struct_string" encrypt:"true"`
 	OtherInt          int               `json:"other_int"`
-	OtherMap          map[string]string `json:"other_map"`
+	OtherMap          map[string]string `json:"other_map" encrypt:"true"`
 }
 
 func main() {

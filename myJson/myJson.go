@@ -3,6 +3,8 @@ package myJson
 import (
 	"fmt"
 	"reflect"
+
+	"github.com/krkeshav/myJson/encrypt"
 )
 
 type JsonData struct {
@@ -61,9 +63,12 @@ func simpleEncode(value reflect.Value) string {
 			if jsonTagName == "" {
 				jsonTagName = valueType.Name
 			}
-			// tag := valueType.Tag.Get("encrypt")
-			// isValidTag := tag == "true"
+			tag := valueType.Tag.Get("encrypt")
+			isValidTag := tag == "true"
 			underlyingFieldValueStr := simpleEncode(value.Field(index))
+			if isValidTag {
+				underlyingFieldValueStr = encrypt.Encrypt(underlyingFieldValueStr)
+			}
 			str += fmt.Sprintf(`"%s":%s`, jsonTagName, underlyingFieldValueStr)
 		}
 		str += "}"
