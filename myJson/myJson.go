@@ -81,9 +81,10 @@ func simpleEncode(value reflect.Value) string {
 			tag := valueType.Tag.Get("encrypt")
 			encryptionRequired := tag == "true"
 			underlyingFieldValueStr := simpleEncode(value.Field(index))
-			if underlyingFieldValueStr == "{}" || underlyingFieldValueStr == "[]" {
-				underlyingFieldValueStr = "null" // this is for same behavior as encoding/json package
-			}
+			// removing below check because what if there is empty map or slice
+			// if underlyingFieldValueStr == "{}" || underlyingFieldValueStr == "[]" {
+			// 	underlyingFieldValueStr = "null" // this is for same behavior as encoding/json package
+			// }
 			if isOmitEmpty && (underlyingFieldValueStr == "null") {
 				continue
 			}
