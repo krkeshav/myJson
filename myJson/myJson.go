@@ -3,6 +3,7 @@ package myJson
 import (
 	"fmt"
 	"reflect"
+	"strings"
 
 	"github.com/krkeshav/myJson/encrypt"
 )
@@ -22,7 +23,13 @@ func (j *JsonData) EncodeValue() string {
 func simpleEncode(value reflect.Value) string {
 	switch value.Kind() {
 	case reflect.String:
-		return fmt.Sprintf(`"%s"`, value.String())
+		strValue := value.String()
+		strValue = strings.ReplaceAll(strValue, "\"", "\\\"") // This is also hackish and not recommended
+		// The below commented ones are probably not required since ideally
+		// the default json library preserves everything and not cleans it
+		// strValue = strings.ReplaceAll(strValue, "\n", "")
+		// strValue = strings.ReplaceAll(strValue, "\t", "")
+		return fmt.Sprintf(`"%s"`, strValue)
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
 		return fmt.Sprintf("%d", value.Int())
 	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
@@ -55,19 +62,36 @@ func simpleEncode(value reflect.Value) string {
 	case reflect.Struct:
 		str := "{"
 		for index := 0; index < value.NumField(); index++ {
-			if index > 0 {
-				str += ","
-			}
 			valueType := value.Type().Field(index)
 			jsonTagName := valueType.Tag.Get("json")
+			jsonTagValues := strings.Split(jsonTagName, ",")
+			if len(jsonTagValues) > 0 {
+				jsonTagName = jsonTagValues[0]
+				if jsonTagName == "-" {
+					continue
+				}
+			}
+			isOmitEmpty := false
+			if len(jsonTagValues) > 1 {
+				isOmitEmpty = jsonTagValues[1] == "omitempty"
+			}
 			if jsonTagName == "" {
 				jsonTagName = valueType.Name
 			}
 			tag := valueType.Tag.Get("encrypt")
-			isValidTag := tag == "true"
+			encryptionRequired := tag == "true"
 			underlyingFieldValueStr := simpleEncode(value.Field(index))
-			if isValidTag {
+			if underlyingFieldValueStr == "{}" || underlyingFieldValueStr == "[]" {
+				underlyingFieldValueStr = "null" // this is for same behavior as encoding/json package
+			}
+			if isOmitEmpty && (underlyingFieldValueStr == "null") {
+				continue
+			}
+			if encryptionRequired {
 				underlyingFieldValueStr = encrypt.Encrypt(underlyingFieldValueStr)
+			}
+			if index > 0 {
+				str += ","
 			}
 			str += fmt.Sprintf(`"%s":%s`, jsonTagName, underlyingFieldValueStr)
 		}
@@ -76,7 +100,7 @@ func simpleEncode(value reflect.Value) string {
 	case reflect.Ptr:
 		return simpleEncode(value.Elem())
 	default:
-		return ""
+		return "null"
 	}
 }
 

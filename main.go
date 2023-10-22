@@ -8,16 +8,21 @@ import (
 )
 
 type RandomStruct struct {
-	String         string                  `json:"string" encrypt:"true"`
-	Integer        int                     `json:"integer"`
-	Float          float64                 `json:"float" encrypt:"true"`
-	Bool           bool                    `json:"bool"`
-	Slice          []string                `json:"slice"`
-	Map            map[string]string       `json:"map"`
-	IntMap         map[int]string          `json:"int_map"` // handle this case "IntMap":{"<int Value>":"Two"}
-	OtherStruct    *OtherStruct            `json:"other_struct"`
-	MapStrToStruct map[string]*OtherStruct `json:"map_str_to_struct"`
-	SliceOfStruct  []OtherStruct           `json:"slice_struct"`
+	String             string                  `json:"string" encrypt:"true"`
+	Integer            int                     `json:"integer"`
+	Float              float64                 `json:"float" encrypt:"true"`
+	Bool               bool                    `json:"bool"`
+	Slice              []string                `json:"slice"`
+	Map                map[string]string       `json:"map"`
+	IntMap             map[int]string          `json:"int_map"` // handle this case "IntMap":{"<int Value>":"Two"}
+	OtherStruct        *OtherStruct            `json:"other_struct"`
+	MapStrToStruct     map[string]*OtherStruct `json:"map_str_to_struct"`
+	SliceOfStruct      []OtherStruct           `json:"slice_struct"`
+	NoJsonTag          string                  `json:"-"`
+	OtherStructPointer *OtherStruct            `json:"other_struct_pointer,omitempty"`
+	OtherSliceAgain    []string                `json:"other_slice,omitempty"`
+	OtherMap           map[string]string       `json:"other_map,omitempty"`
+	RawJson            string                  `json:"rawJson"`
 }
 
 type OtherStruct struct {
@@ -70,6 +75,7 @@ func main() {
 				},
 			},
 		},
+		RawJson: `{"string":"encrypted","integer":69,"float":"encrypted","bool":false,"slice":["1","2","3"]}`,
 	}
 
 	jsonHelper := myJson.NewJsonData(rd)
