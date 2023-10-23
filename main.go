@@ -18,6 +18,7 @@ type RandomStruct struct {
 	OtherStruct        *OtherStruct            `json:"other_struct"`
 	MapStrToStruct     map[string]*OtherStruct `json:"map_str_to_struct"`
 	SliceOfStruct      []OtherStruct           `json:"slice_struct"`
+	SliceOfPointers    []*OtherStruct          `json:"slice_of_pointers"`
 	NoJsonTag          string                  `json:"-"`
 	OtherStructPointer *OtherStruct            `json:"other_struct_pointer,omitempty"`
 	OtherSliceAgain    []string                `json:"other_slice,omitempty"`
@@ -76,6 +77,9 @@ func main() {
 			},
 		},
 		RawJson: `{"string":"encrypted","integer":69,"float":"encrypted","bool":false,"slice":["1","2","3"]}`,
+		SliceOfPointers: []*OtherStruct{
+			{},
+		},
 	}
 
 	jsonHelper := myJson.NewJsonData(rd)
