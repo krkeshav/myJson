@@ -3,6 +3,7 @@ package myJson
 import (
 	"fmt"
 	"reflect"
+	"strconv"
 	"strings"
 
 	"github.com/krkeshav/myJson/encrypt"
@@ -25,42 +26,61 @@ func simpleEncode(value reflect.Value) string {
 	case reflect.String:
 		strValue := value.String()
 		strValue = strings.ReplaceAll(strValue, "\"", "\\\"") // This is also hackish and not recommended
+		sb := strings.Builder{}
+		sb.WriteString(`"`)
+		sb.WriteString(strValue)
+		sb.WriteString(`"`)
 		// The below commented ones are probably not required since ideally
 		// the default json library preserves everything and not cleans it
 		// strValue = strings.ReplaceAll(strValue, "\n", "")
 		// strValue = strings.ReplaceAll(strValue, "\t", "")
-		return fmt.Sprintf(`"%s"`, strValue)
+		return sb.String()
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-		return fmt.Sprintf("%d", value.Int())
+		intVal := value.Int()
+		strIntVal := strconv.FormatInt(intVal, 10)
+		return strIntVal
 	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
-		return fmt.Sprintf("%d", value.Uint())
+		uintVal := value.Uint()
+		strUintVal := strconv.FormatUint(uintVal, 10)
+		return strUintVal
 	case reflect.Float32, reflect.Float64:
-		return fmt.Sprintf("%f", value.Float())
+		floatVal := value.Float()
+		strFloatVal := strconv.FormatFloat(floatVal, 'f', -1, 64)
+		return strFloatVal
 	case reflect.Bool:
-		return fmt.Sprintf("%t", value.Bool())
+		return strconv.FormatBool(value.Bool())
 	case reflect.Slice, reflect.Array:
-		str := "["
+		sb := strings.Builder{}
+		sb.WriteString("[")
 		for index := 0; index < value.Len(); index++ {
 			if index > 0 {
-				str += ","
+				sb.WriteString(",")
 			}
-			str += simpleEncode(value.Index(index))
+			strVal := simpleEncode(value.Index(index))
+			sb.WriteString(strVal)
 		}
-		str += "]"
-		return str
+		sb.WriteString("]")
+		return sb.String()
 	case reflect.Map:
-		str := "{"
+		sb := strings.Builder{}
+		sb.WriteString("{")
 		for index, key := range value.MapKeys() {
 			if index > 0 {
-				str += ","
+				sb.WriteString(",")
 			}
 			keyValue := getMapKey(key)
-			str += fmt.Sprintf(`"%s":%s`, keyValue, simpleEncode(value.MapIndex(key)))
+			sb.WriteString(`"`)
+			sb.WriteString(keyValue)
+			sb.WriteString(`"`)
+			sb.WriteString(":")
+			mpValue := simpleEncode(value.MapIndex(key))
+			sb.WriteString(mpValue)
 		}
-		str += "}"
-		return str
+		sb.WriteString("}")
+		return sb.String()
 	case reflect.Struct:
-		str := "{"
+		sb := strings.Builder{}
+		sb.WriteString("{")
 		for index := 0; index < value.NumField(); index++ {
 			valueType := value.Type().Field(index)
 			jsonTagName := valueType.Tag.Get("json")
@@ -88,16 +108,20 @@ func simpleEncode(value reflect.Value) string {
 			if isOmitEmpty && (underlyingFieldValueStr == "null") {
 				continue
 			}
-			if encryptionRequired {
+			if false && encryptionRequired {
 				underlyingFieldValueStr = encrypt.Encrypt(underlyingFieldValueStr)
 			}
 			if index > 0 {
-				str += ","
+				sb.WriteString(",")
 			}
-			str += fmt.Sprintf(`"%s":%s`, jsonTagName, underlyingFieldValueStr)
+			sb.WriteString(`"`)
+			sb.WriteString(jsonTagName)
+			sb.WriteString(`"`)
+			sb.WriteString(":")
+			sb.WriteString(underlyingFieldValueStr)
 		}
-		str += "}"
-		return str
+		sb.WriteString("}")
+		return sb.String()
 	case reflect.Ptr:
 		return simpleEncode(value.Elem())
 	default:
