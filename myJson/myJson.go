@@ -108,7 +108,7 @@ func simpleEncode(value reflect.Value) string {
 			if isOmitEmpty && (underlyingFieldValueStr == "null") {
 				continue
 			}
-			if false && encryptionRequired {
+			if encryptionRequired {
 				underlyingFieldValueStr = encrypt.Encrypt(underlyingFieldValueStr)
 			}
 			if index > 0 {
